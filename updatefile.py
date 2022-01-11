@@ -46,4 +46,5 @@ if __name__ == '__main__':
         t = Thread(target=writeThrd)
         t.daemon = True
         t.start()
+
 t.join()
