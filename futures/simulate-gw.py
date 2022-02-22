@@ -1,10 +1,13 @@
 from ctypes import GetLastError
+from pickle import FALSE, TRUE
 import socket               # Import socket module
 import time
 import threading
 import select
 import sys
 import datetime
+
+from collections import Counter
 
 #from types import ClassMethodDescriptorType
 
@@ -40,11 +43,17 @@ socklst = [gSock]
 print('Total number of arguments:', format(len(sys.argv)))
 SvrIp = "172.20.16.165"
 SvrPort = 8001
+bIpV6 = FALSE
+
+args = sys.argv[1]
 
 if len(sys.argv) >= 2:
-    serverInfo = sys.argv[1].split(":")
-    SvrIp = serverInfo[0]
-    SvrPort = int(serverInfo[1])
+    lp = args.rindex(":")
+    SvrIp = args[:lp]
+    SvrPort = int(args[lp+1:])
+
+count = Counter(SvrIp)
+bIpV6 = TRUE if count[':'] > 1 else FALSE
 
 eventAuth = threading.Event()
 eventAuthSuccess = threading.Event()
@@ -103,7 +112,10 @@ def WorkingThread(conn, _thIndex):
 def Server_program():
     global gSock
 
-    gSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    if not bIpV6:
+        gSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    else:
+        gSock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
     gSock.bind((SvrIp, SvrPort))
     gSock.listen(100)
     print("gw-server listen on {0}:{1} \n".format(SvrIp, SvrPort))

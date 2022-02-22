@@ -5,6 +5,8 @@ import threading
 import select
 import sys
 import datetime
+from collections import Counter
+from tkinter import FALSE, TRUE
 
 #from types import ClassMethodDescriptorType
 
@@ -39,10 +41,16 @@ eventLoginSuccess = threading.Event()
 print('Total number of arguments:', format(len(sys.argv)))
 SvrIp = "172.20.16.165"
 SvrPort = 8000
+bIpV6 = FALSE
+
+args = sys.argv[1]
 if len(sys.argv) >= 2:
-    serverInfo = sys.argv[1].split(":")
-    SvrIp = serverInfo[0]
-    SvrPort = int(serverInfo[1])
+    lp = args.rindex(":")
+    SvrIp = args[:lp]
+    SvrPort = int(args[lp+1:])
+
+count = Counter(SvrIp)
+bIpV6 = TRUE if count[':'] > 1 else FALSE
 
 
 def DecodeMsg(msg):
@@ -95,7 +103,11 @@ def WorkingThrd():
         try:
             nt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            gSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # gSock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            if not bIpV6:
+                gSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            else:
+                gSock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
             gSock.connect((SvrIp, SvrPort))
             print('{2} connect to server {0}:{1}\n'.format(SvrIp, SvrPort, nt))
 
@@ -150,7 +162,7 @@ def WorkingThrd():
                             gSock.sendall(bytearray(data_ctp))
                         else:
                             print('{0} send data_ctp to server \n'.format(nt))
-                            gSock.sendall(bytearray(data_ctp))
+                            # gSock.sendall(bytearray(data_ctp))
                             time.sleep(0.1)
 
                 except Exception as e:

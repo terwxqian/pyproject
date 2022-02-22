@@ -9,17 +9,13 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
             "console": "integratedTerminal",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}"
-            }
+            },
+            "args": [
+                "fe80::a989:2147:5f46:a4f3:40000",
+            ],
         },
     ]
 }
